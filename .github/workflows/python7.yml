@@ -1,0 +1,34 @@
+name: Setup1 Python
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  echo-python-setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else echo "No requirements.txt found, skipping dependency installation"; fi
+
+      - name: Run Tests
+        run: python -m unittest discover
+
+      - name: Create Staging Directory
+        run: mkdir staging && cp -r src/* staging
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: Package_Python
+          path: staging
